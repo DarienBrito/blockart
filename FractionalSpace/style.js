@@ -51,6 +51,7 @@ const shaders = Shaders.create({
 precision highp float;
 varying vec2 uv;
 
+uniform bool animate;
 uniform float seedA;
 uniform float seedB;
 uniform float seedC;
@@ -162,7 +163,8 @@ vec3 hueShiftYIQ(vec3 rgb, float h) {
 }
 
 void main() {
-  vec3 o  = vec3(0.0, 0.0, time*mod1 +  PI * 2.0);
+  float phase = (animate == true) ? time*mod1 : mod1;
+  vec3 o  = vec3(0.0, 0.0, phase +  PI * 2.0);
   vec3 r  = rayDir(max(0.01, min(0.99, mod2)) * 180.0, uv*resolution, resolution);
   float d = trace(o, r);
 
@@ -194,6 +196,7 @@ const CustomStyle = ({
   block,
   attributesRef,
   time,
+  animate,
   width,
   height,
   mod1,
@@ -232,6 +235,7 @@ const CustomStyle = ({
     <Node
       shader={shaders.main}
       uniforms={{
+        animate,
         time,
         mod1,
         mod2,
