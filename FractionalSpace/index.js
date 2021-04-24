@@ -61,6 +61,7 @@ function App() {
           {width && height ? (
             <Surface width={width} height={height}>
               <CustomStyle
+                animate={true}
                 width={width}
                 block={blocks[blockNumber]}
                 height={height}
