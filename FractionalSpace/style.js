@@ -51,11 +51,11 @@ const shaders = Shaders.create({
 precision highp float;
 varying vec2 uv;
 
-uniform bool animate;
+#define AA 4
+
 uniform float seedA;
 uniform float seedB;
 uniform float seedC;
-uniform float time;
 uniform float mod1;
 uniform float mod2;
 uniform float mod3;
@@ -163,28 +163,43 @@ vec3 hueShiftYIQ(vec3 rgb, float h) {
 }
 
 void main() {
-  vec3 o  = vec3(0.0, 0.0, (mod1 * 2.0) * PI);
-  vec3 r  = rayDir(max(0.01, min(0.99, mod2)) * 180.0, uv*resolution, resolution);
-  float d = trace(o, r);
+	vec3 finalColor = vec3(0.0);
 
-  vec3 pos = o + r * d;
-  float fd = map(pos);
-  vec3 normal = getNormal(pos);
-  
-  float diffusion = max(dot(r, -normal), 0.0);
-  float fog = diffusion * 8.0 / d * 2.0 + fd - 0.5; 
-  
-  // Color basis
-  vec3 sc = vec3(0.1, 0.3, 0.8);
-  vec3 ec = vec3(0.8, 0.1, 0.1);
+	// Antialiasing (supersampling)
+	for(int m = 0; m < AA; m++) {
+		for(int n = 0; n < AA; n++) {		
 
-  // User coloring
-  sc = hueShiftYIQ(sc, mod4);
-  ec = hueShiftYIQ(ec, mod5);
-  vec3 fc  = mix(sc, ec, sin(TAU * fd * (mod6 * 6.0)));
+			vec2 off = vec2(float(m), float(n)) /  float(AA);
+			vec2 newUV = uv + off*(1.0/resolution);
 
-  fc *= fog;
-  gl_FragColor = vec4(sqrt(fc),1.0);
+			vec3 o  = vec3(0.0, 0.0, (mod1 * 2.0) * PI);
+			vec3 r  = rayDir(max(0.01, min(0.99, mod2)) * 180.0, newUV*resolution, resolution);
+			float d = trace(o, r);
+
+			vec3 pos = o + r * d;
+			float fd = map(pos);
+			vec3 normal = getNormal(pos);
+
+			float diffusion = max(dot(r, -normal), 0.0);
+			float fog = diffusion * 8.0 / d * 2.0 + fd - 0.5; 
+
+			// Color basis
+			vec3 sc = vec3(0.1, 0.3, 0.8);
+			vec3 ec = vec3(0.8, 0.1, 0.1);
+
+			// User coloring
+			sc = hueShiftYIQ(sc, mod4);
+			ec = hueShiftYIQ(ec, mod5);
+			vec3 fc  = mix(sc, ec, sin(TAU * fd * (mod6 * 6.0)));
+
+			fc *= fog;
+			finalColor +=  sqrt(fc);
+
+		}
+	}
+
+	finalColor /= float(AA*AA);
+	gl_FragColor = vec4(finalColor,1.0);
 
 }
   `
