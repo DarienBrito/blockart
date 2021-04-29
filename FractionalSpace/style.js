@@ -163,7 +163,7 @@ vec3 hueShiftYIQ(vec3 rgb, float h) {
 }
 
 void main() {
-  vec3 o  = vec3(0.0, 0.0, mod1 *  (PI * 2.0));
+  vec3 o  = vec3(0.0, 0.0, (mod1 * 2.0) * PI);
   vec3 r  = rayDir(max(0.01, min(0.99, mod2)) * 180.0, uv*resolution, resolution);
   float d = trace(o, r);
 
