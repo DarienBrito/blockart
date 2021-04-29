@@ -35,7 +35,7 @@ export const styleMetadata = {
   image: "",
   creator_name: "Darien",
   options: {
-    mod1: 0.5, // speed
+    mod1: 0.5, // Phase
     mod2: 0.5, // zoom
     mod3: 0.5, // fract scaler
     mod4: 0.01, // hue offset start
@@ -163,8 +163,7 @@ vec3 hueShiftYIQ(vec3 rgb, float h) {
 }
 
 void main() {
-  float phase = (animate == true) ? time*mod1 : mod1;
-  vec3 o  = vec3(0.0, 0.0, phase +  PI * 2.0);
+  vec3 o  = vec3(0.0, 0.0, mod1 *  (PI * 2.0));
   vec3 r  = rayDir(max(0.01, min(0.99, mod2)) * 180.0, uv*resolution, resolution);
   float d = trace(o, r);
 
@@ -195,8 +194,6 @@ void main() {
 const CustomStyle = ({
   block,
   attributesRef,
-  time,
-  animate,
   width,
   height,
   mod1,
@@ -235,8 +232,6 @@ const CustomStyle = ({
     <Node
       shader={shaders.main}
       uniforms={{
-        animate,
-        time,
         mod1,
         mod2,
         mod3,
