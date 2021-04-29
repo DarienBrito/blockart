@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import useDimensions from "react-cool-dimensions";
 import blocks from "./blocks";
 import CustomStyle, { styleMetadata } from "./CustomStyle";
@@ -20,20 +20,6 @@ function App() {
   const snap = useProxy(store);
   const attributesRef = useRef();
   const { ref, width, height } = useDimensions({});
-
-  const [time, setTime] = useState(0);
-  useEffect(() => {
-    let startT;
-    let h;
-    function loop(t) {
-      h = requestAnimationFrame(loop);
-      if (!startT) startT = t;
-      setTime((t - startT) / 1000);
-    }
-
-    h = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(h);
-  }, []);
 
   const mods = Object.keys(store.options).map((k) => {
     return {
@@ -61,11 +47,9 @@ function App() {
           {width && height ? (
             <Surface width={width} height={height}>
               <CustomStyle
-                animate={true}
                 width={width}
                 block={blocks[blockNumber]}
                 height={height}
-                time={time}
                 attributesRef={attributesRef}
                 {...snap.options}
               />
